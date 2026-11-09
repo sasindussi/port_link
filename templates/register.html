@@ -9,9 +9,21 @@
     <style>
         /* 3D Modern Navbar with Gradient */
         .custom-navbar {
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 20%);
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
             border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Navbar Right Alignment Forced Fix */
+        .custom-navbar .container {
+            max-width: 100% !important;
+            padding-left: 30px;
+            padding-right: 30px;
+        }
+
+        #navbarNav {
+            margin-left: auto !important;
+            flex-grow: 0 !important;
         }
 
         /* 3D Glass Water Effect for Nav Links & Buttons */
@@ -51,8 +63,9 @@
         .watermark-section {
             position: relative;
             background-color: #f8f9fa;
-            min-height: 85vh;
-            overflow: hidden;
+            min-height: 100vh;
+            padding: 50px 0;
+            overflow-x: hidden;
             display: flex;
             align-items: center;
         }
@@ -60,7 +73,7 @@
         .watermark-section::before {
             content: "";
             position: absolute;
-            top: 60%;
+            top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             width: 750px;
@@ -69,7 +82,7 @@
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
-            opacity: 0.1;
+            opacity: 0.08;
             pointer-events: none;
             z-index: 0;
         }
@@ -81,55 +94,64 @@
 
         /* Glassmorphism Card Effect */
         .glass-card {
-            background: rgba(235, 231, 231, 0.05) !important;
+            background: rgba(255, 255, 255, 0.9) !important;
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.06) !important;
-            box-shadow: 0 10px 30px 0 rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(0, 0, 0, 0.08) !important;
+            box-shadow: 0 15px 35px 0 rgba(0, 0, 0, 0.1);
             border-radius: 16px;
         }
     </style>
 </head>
 <body class="bg-light">
 
-    <!-- 3D Navigation Bar with Glass Links & Logo -->
+    <!-- 3D Navigation Bar with Right-Aligned Links -->
     <nav class="navbar navbar-expand-lg navbar-dark custom-navbar sticky-top py-3">
         <div class="container">
             <a class="navbar-brand fw-bold d-flex align-items-center" href="/">
                 <img src="https://votwxipamylcvrthtdhg.supabase.co/storage/v1/object/sign/port_link/logo.webp?token=eyJraWQiOiIzNDYzNmYyZS01NDc1LTQ2MmItODUwZC02Y2Q3ZTIzNzY1MzkiLCJhbGciOiJIUzUxMiJ9.eyJ1cmwiOiJwb3J0X2xpbmsvbG9nby53ZWJwIiwic2NvcGUiOiJkb3dubG9hZCIsImlhdCI6MTc5MjY5NzUzOCwiZXhwIjo0OTQ2Mjk3NTM4fQ.3Aw-FVqzgyao_rmLK0n2h-3cPOKbiw_-csONm6taVFjRsNQuo2FcADDhWsmYyEGz9Sc7-QtAABpDj1sHu6o8xA" 
-                     alt="Port Link Logo" 
-                     width="42" 
-                     height="42" 
-                     class="me-2 rounded-circle shadow-sm object-fit-cover border border-white">
-                <span class="fs-4 tracking-wide">Port Link <span class="text-info"></span></span>
+                     alt="Port Link Logo" width="42" height="42" class="me-2 rounded-circle shadow-sm object-fit-cover border border-white">
+                <span class="fs-4 tracking-wide">Port Link</span>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+            <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav align-items-center">
                     <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
                     <li class="nav-item"><a class="nav-link" href="/jobs">Available Jobs</a></li>
                     <li class="nav-item"><a class="nav-link" href="/contact">Contact Us</a></li>
                     <li class="nav-item"><a class="nav-link btn-glass-signin ms-2" href="/login">Log In</a></li>
                     <li class="nav-item"><a class="nav-link active btn-glass-register ms-2" href="/register">Register</a></li>
+                    <li class="nav-item"><a class="nav-link btn-glass-signin ms-2" href="/admin/login"><i class="fa-solid fa-shield-halved text-info"></i> Admin</a></li>
                 </ul>
             </div>
         </div>
     </nav>
 
-    <!-- Content Section with Logo Watermark & Register Form Glass Card -->
-    <div class="watermark-section py-5">
+    <!-- Content Section with Logo Watermark & Dynamic Register Form -->
+    <div class="watermark-section">
         <div class="container">
             <div class="row justify-content-center">
-                <div class="col-md-6">
-                    <div class="card glass-card p-5">
+                <div class="col-md-7">
+                    <div class="card glass-card p-5 my-4">
                         <div class="text-center mb-4">
-                            <h2 class="fw-bold text-primary">Register New User </h2>
+                            <h2 class="fw-bold text-primary">Register New User 🚢</h2>
                             <p class="text-muted">Create your Port Link account</p>
                         </div>
                         
-                        <form action="/register" method="POST">
+                        <!-- Flash Messages -->
+                        {% with messages = get_flashed_messages(with_categories=true) %}
+                            {% if messages %}
+                                {% for category, message in messages %}
+                                    <div class="alert alert-{{ category }} py-2 small" role="alert">{{ message }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        {% endwith %}
+
+                        <form action="/register" method="POST" enctype="multipart/form-data">
+                            
+                            <!-- Full Name -->
                             <div class="mb-3">
                                 <label for="fullname" class="form-label text-dark fw-bold">Full Name</label>
                                 <div class="input-group">
@@ -138,14 +160,17 @@
                                 </div>
                             </div>
 
+                            <!-- Email Address with Live Validation -->
                             <div class="mb-3">
                                 <label for="email" class="form-label text-dark fw-bold">Email Address</label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-white"><i class="fa-solid fa-envelope text-primary"></i></span>
                                     <input type="email" class="form-control" id="email" name="email" required placeholder="Enter your email">
                                 </div>
+                                <div id="email-feedback" class="form-text small mt-1"></div>
                             </div>
 
+                            <!-- Password -->
                             <div class="mb-3">
                                 <label for="password" class="form-label text-dark fw-bold">Password</label>
                                 <div class="input-group">
@@ -154,26 +179,65 @@
                                 </div>
                             </div>
 
+                            <!-- Role -->
                             <div class="mb-3">
                                 <label for="role" class="form-label text-dark fw-bold">Role</label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-white"><i class="fa-solid fa-user-tag text-primary"></i></span>
-                                    <select class="form-select" id="role" name="role">
+                                    <select class="form-select" id="role" name="role" onchange="toggleFields()">
                                         <option value="client">Client</option>
                                         <option value="driver">Driver</option>
                                     </select>
                                 </div>
                             </div>
 
-                            <div class="mb-4">
+                            <!-- Phone Number with Live Validation -->
+                            <div class="mb-3">
                                 <label for="phone" class="form-label text-dark fw-bold">Phone Number</label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-white"><i class="fa-solid fa-phone text-primary"></i></span>
                                     <input type="text" class="form-control" id="phone" name="phone" required placeholder="Enter your phone number">
                                 </div>
+                                <div id="phone-feedback" class="form-text small mt-1"></div>
                             </div>
 
-                            <button type="submit" class="btn btn-primary w-100 py-2 rounded-pill fw-bold shadow-sm">Register</button>
+                            <!-- Client Specific Fields -->
+                            <div id="clientFields">
+                                <div class="mb-3">
+                                    <label for="nic_client" class="form-label text-dark fw-bold">Photo of NIC</label>
+                                    <input type="file" class="form-control" id="nic_client" name="nic_client">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="business_reg" class="form-label text-dark fw-bold">Business Registration Document</label>
+                                    <input type="file" class="form-control" id="business_reg" name="business_reg">
+                                </div>
+                            </div>
+
+                            <!-- Driver Specific Fields (Initially Hidden) -->
+                            <div id="driverFields" style="display: none;">
+                                <div class="mb-3">
+                                    <label for="nic_driver" class="form-label text-dark fw-bold">Photo of NIC</label>
+                                    <input type="file" class="form-control" id="nic_driver" name="nic_driver">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="driving_license" class="form-label text-dark fw-bold">Driving License</label>
+                                    <input type="file" class="form-control" id="driving_license" name="driving_license">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="vehicle_license" class="form-label text-dark fw-bold">Vehicle License</label>
+                                    <input type="file" class="form-control" id="vehicle_license" name="vehicle_license">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="vehicle_photo" class="form-label text-dark fw-bold">Photo of Vehicle</label>
+                                    <input type="file" class="form-control" id="vehicle_photo" name="vehicle_photo">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="police_report" class="form-label text-dark fw-bold">Police Report of Driver</label>
+                                    <input type="file" class="form-control" id="police_report" name="police_report">
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100 py-2 rounded-pill fw-bold shadow-sm mt-3">Register</button>
                         </form>
 
                         <div class="text-center mt-4">
@@ -184,6 +248,56 @@
             </div>
         </div>
     </div>
+
+    <!-- JavaScript for Role Toggle & Live Email/Phone Validation -->
+    <script>
+        function toggleFields() {
+            const role = document.getElementById('role').value;
+            const clientFields = document.getElementById('clientFields');
+            const driverFields = document.getElementById('driverFields');
+
+            if (role === 'driver') {
+                clientFields.style.display = 'none';
+                driverFields.style.display = 'block';
+            } else {
+                clientFields.style.display = 'block';
+                driverFields.style.display = 'none';
+            }
+        }
+
+        // Live Validation Logic
+        const emailInput = document.getElementById('email');
+        const emailFeedback = document.getElementById('email-feedback');
+        
+        const phoneInput = document.getElementById('phone');
+        const phoneFeedback = document.getElementById('phone-feedback');
+
+        emailInput.addEventListener('input', function() {
+            const val = emailInput.value;
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            
+            if (emailRegex.test(val)) {
+                emailInput.style.borderColor = '#198754';
+                emailFeedback.innerHTML = '<span class="text-success"><i class="fa-solid fa-check"></i> Valid email address</span>';
+            } else {
+                emailInput.style.borderColor = '#dc3545';
+                emailFeedback.innerHTML = '<span class="text-danger"><i class="fa-solid fa-xmark"></i> Invalid email format</span>';
+            }
+        });
+
+        phoneInput.addEventListener('input', function() {
+            const val = phoneInput.value.trim();
+            const phoneRegex = /^(?:0|94|\+94)?(7[0123456789]\d{7})$/;
+            
+            if (phoneRegex.test(val)) {
+                phoneInput.style.borderColor = '#198754';
+                phoneFeedback.innerHTML = '<span class="text-success"><i class="fa-solid fa-check"></i> Valid phone number</span>';
+            } else {
+                phoneInput.style.borderColor = '#dc3545';
+                phoneFeedback.innerHTML = '<span class="text-danger"><i class="fa-solid fa-xmark"></i> Invalid phone number format (e.g. 0712345678)</span>';
+            }
+        });
+    </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

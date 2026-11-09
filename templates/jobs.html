@@ -14,6 +14,18 @@
             border-bottom: 2px solid rgba(255, 255, 255, 0.1);
         }
 
+        /* Navbar Right Alignment Forced Fix */
+        .custom-navbar .container {
+            max-width: 100% !important;
+            padding-left: 30px;
+            padding-right: 30px;
+        }
+
+        #navbarNav {
+            margin-left: auto !important;
+            flex-grow: 0 !important;
+        }
+
         /* 3D Glass Water Effect for Nav Links & Buttons */
         .navbar-nav .nav-link {
             color: #ffffff !important;
@@ -47,11 +59,19 @@
             font-weight: 600;
         }
 
-        /* Watermark Background for Content Section */
+        /* 3D Hero Section (Height balanced) */
+        .hero-section {
+            background: linear-gradient(135deg, #0284c7 0%, #0369a1 50%, #0f172a 100%);
+            color: white;
+            padding: 60px 0;
+            border-radius: 0 0 35px 35px;
+            box-shadow: 0 15px 25px -10px rgba(2, 132, 199, 0.4);
+        }
+
+        /* Watermark Feature Section Background with token link */
         .watermark-section {
             position: relative;
             background-color: #f8f9fa;
-            min-height: 75vh;
             overflow: hidden;
         }
 
@@ -77,72 +97,114 @@
             z-index: 1;
         }
 
-        /* Glassmorphism Card Effect */
-        .glass-card {
-            background: rgba(24, 130, 237, 0.2) !important;
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.06) !important;
-            box-shadow: 0 10px 30px 0 rgba(0, 0, 0, 0.08);
+        .feature-card {
             transition: transform 0.3s ease, box-shadow 0.3s ease;
-            border-radius: 16px;
+            border: none;
+            border-radius: 15px;
         }
-        
-        .glass-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.12) !important;
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1) !important;
         }
     </style>
-</head>
-<body class="bg-light">
 
-    <!-- 3D Navigation Bar with Glass Links & Logo -->
+</head>
+<body>
+
+    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark custom-navbar sticky-top py-3">
         <div class="container">
             <a class="navbar-brand fw-bold d-flex align-items-center" href="/">
-                <img src="https://votwxipamylcvrthtdhg.supabase.co/storage/v1/object/sign/port_link/logo.webp?token=eyJraWQiOiIzNDYzNmYyZS01NDc1LTQ2MmItODUwZC02Y2Q3ZTIzNzY1MzkiLCJhbGciOiJIUzUxMiJ9.eyJ1cmwiOiJwb3J0X2xpbmsvbG9nby53ZWJwIiwic2NvcGUiOiJkb3dubG9hZCIsImlhdCI6MTc5MjY5NzUzOCwiZXhwIjo0OTQ2Mjk3NTM4fQ.3Aw-FVqzgyao_rmLK0n2h-3cPOKbiw_-csONm6taVFjRsNQuo2FcADDhWsmYyEGz9Sc7-QtAABpDj1sHu6o8xA" 
-                     alt="Port Link Logo" 
-                     width="42" 
-                     height="42" 
-                     class="me-2 rounded-circle shadow-sm object-fit-cover border border-white">
-                <span class="fs-4 tracking-wide">Port Link <span class="text-info"></span></span>
+                <span class="fs-4 tracking-wide">Port Link <span class="text-info">Portal</span></span>
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-                <ul class="navbar-nav align-items-center">
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
                     <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
                     <li class="nav-item"><a class="nav-link active" href="/jobs">Available Jobs</a></li>
                     <li class="nav-item"><a class="nav-link" href="/contact">Contact Us</a></li>
-                    <li class="nav-item"><a class="nav-link btn-glass-signin ms-2" href="/login">Log In</a></li>
-                    <li class="nav-item"><a class="nav-link btn-glass-register ms-2" href="/register">Register</a></li>
+                    
+                    {% if session.get('role') == 'client' %}
+                        <li class="nav-item"><a class="nav-link btn btn-info btn-sm text-dark px-3 ms-2 fw-bold rounded-pill" href="/post-job"><i class="fa-solid fa-plus me-1"></i> Post Job</a></li>
+                    {% endif %}
+
+                    {% if 'user_id' in session %}
+                        <li class="nav-item"><a class="nav-link ms-2" href="/profile"><i class="fa-solid fa-user me-1 text-info"></i> Profile</a></li>
+                        <li class="nav-item"><a class="nav-link text-white bg-danger px-3 ms-2 rounded-pill" href="/logout"><i class="fa-solid fa-right-from-bracket me-1"></i> Logout</a></li>
+                    {% else %}
+                        <li class="nav-item"><a class="nav-link ms-2" href="/login">Log In</a></li>
+                        <li class="nav-item"><a class="nav-link btn btn-primary text-white px-3 ms-2 rounded-pill" href="/register">Register</a></li>
+                    {% endif %}
                 </ul>
             </div>
         </div>
     </nav>
 
-    <!-- Content Section with Logo Watermark & Glass Cards -->
+    <!-- Watermark Section with Glass Cards -->
     <div class="watermark-section py-5">
         <div class="container">
-            <h2 class="mb-4 text-dark fw-bold">Available Container Transport Jobs</h2>
+            
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} py-2 small" role="alert">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="text-dark fw-bold"><i class="fa-solid fa-truck-fast text-primary me-2"></i> Available Container Transport Jobs</h2>
+                {% if session.get('role') == 'client' %}
+                    <a href="/post-job" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm"><i class="fa-solid fa-plus me-1"></i> Post New Job</a>
+                {% endif %}
+            </div>
+
             <div class="row" id="jobListContainer">
-                <!-- Job Card with Glassmorphism Effect -->
-                <div class="col-md-4 mb-3">
-                    <div class="card glass-card p-4">
-                        <h5 class="fw-bold text-primary mb-3">Container: 40ft</h5>
-                        <p class="text-muted mb-1"><i class="fa-solid fa-location-dot me-2 text-danger"></i>Pickup: Colombo Port</p>
-                        <p class="text-muted mb-3"><i class="fa-solid fa-flag-checkered me-2 text-success"></i>Dropoff: Kandy City</p>
-                        <div class="mb-3">
-                            <span class="badge bg-warning text-dark px-3 py-2">Pending</span>
+                {% if jobs %}
+                    {% for job in jobs %}
+                    <div class="col-md-4 mb-4">
+                        <div class="card glass-card p-4 h-100">
+                            <h5 class="fw-bold text-primary mb-3"><i class="fa-solid fa-box me-2"></i> {{ job.container_size }}</h5>
+                            <p class="text-dark mb-1"><i class="fa-solid fa-location-dot me-2 text-danger"></i><strong>Pickup:</strong> {{ job.pickup_location }}</p>
+                            <p class="text-dark mb-2"><i class="fa-solid fa-flag-checkered me-2 text-success"></i><strong>Dropoff:</strong> {{ job.dropoff_location }}</p>
+                            <p class="text-muted small mb-3"><strong>Notes:</strong> {{ job.description if job.description else 'No specific instructions provided.' }}</p>
+                            
+                            <div class="mb-3">
+                                <span class="badge {% if job.status == 'Pending' %}bg-warning text-dark{% else %}bg-success{% endif %} px-3 py-2">{{ job.status }}</span>
+                            </div>
+
+                            <div class="mt-auto">
+                                {% if 'user_id' in session %}
+                                    {% if session.get('role') == 'driver' %}
+                                        {% if job.status == 'Pending' %}
+                                            <form action="/apply-job/{{ job.id }}" method="POST">
+                                                <button type="submit" class="btn btn-success w-100 rounded-pill fw-bold shadow-sm">Accept & Apply Job</button>
+                                            </form>
+                                        {% else %}
+                                            <button class="btn btn-secondary w-100 rounded-pill fw-bold" disabled>{{ job.status }}</button>
+                                        {% endif %}
+                                    {% else %}
+                                        <p class="text-muted small text-center mb-0 fst-italic">Logged in as Client</p>
+                                    {% endif %}
+                                {% else %}
+                                    <a href="/register" class="btn btn-outline-primary w-100 rounded-pill fw-bold">Register as Driver to Apply</a>
+                                {% endif %}
+                            </div>
                         </div>
-                        <a href="/register" class="btn btn-outline-primary w-100 rounded-pill fw-bold">See More Details (Register)</a>
                     </div>
-                </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="col-12 text-center py-5">
+                        <div class="card glass-card p-5 mx-auto" style="max-width: 500px;">
+                            <i class="fa-solid fa-folder-open text-muted fa-3x mb-3"></i>
+                            <h5 class="text-muted">No transport jobs available right now.</h5>
+                        </div>
+                    </div>
+                {% endif %}
             </div>
         </div>
     </div>
 
-    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

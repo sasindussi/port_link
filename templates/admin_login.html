@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Port Link - Admin Login</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            color: #fff;
+        }
+        .form-control {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+        .form-control:focus {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: #38bdf8;
+            color: #fff;
+            box-shadow: none;
+        }
+        .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-5">
+                <div class="card glass-card p-4 p-md-5">
+                    <div class="text-center mb-4">
+                        <h3 class="fw-bold"><i class="fa-solid fa-shield-halved text-info"></i> Admin Portal</h3>
+                        <p class="text-light opacity-75 small">Port Link Secure Management</p>
+                    </div>
+
+                    <!-- Flash Messages -->
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }} py-2 small" role="alert">{{ message }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+
+                    <form action="/admin/login" method="POST">
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Admin Email</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-transparent border-end-0 text-white-50"><i class="fa-solid fa-envelope"></i></span>
+                                <input type="email" name="email" class="form-control border-start-0" placeholder="someone@example.com" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label small fw-semibold">Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-transparent border-end-0 text-white-50"><i class="fa-solid fa-lock"></i></span>
+                                <input type="password" name="password" class="form-control border-start-0" placeholder="********" required>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-info w-100 fw-bold py-2 rounded-pill shadow-sm">Login to Dashboard</button>
+                    </form>
+
+                    <div class="text-center mt-3">
+                        <a href="/" class="text-info fw-semibold text-decoration-none"><i class="fa-solid fa-arrow-left me-1"></i> Back to Home</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

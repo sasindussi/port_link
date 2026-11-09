@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Port Link - Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .custom-navbar {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+        body {
+            background-color: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark custom-navbar sticky-top py-3">
+        <div class="container">
+            <a class="navbar-brand fw-bold d-flex align-items-center" href="/">
+                <span class="fs-4 tracking-wide">Port Link <span class="text-info">Admin Portal</span></span>
+            </a>
+            <div class="ms-auto">
+                <a href="/logout" class="btn btn-danger btn-sm rounded-pill px-3 fw-bold">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-5">
+        
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} py-2 small" role="alert">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="row">
+            <!-- Left Side: Admin Profile Settings -->
+            <div class="col-md-4 mb-4">
+                <div class="card shadow-sm border-0 bg-dark text-white p-4 rounded-4">
+                    <h4 class="fw-bold mb-3"><i class="fa-solid fa-user-gear text-info"></i> Admin Settings</h4>
+                    <form action="/admin/update_profile" method="POST">
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Admin Name / Username</label>
+                            <input type="text" name="admin_name" class="form-control bg-secondary text-white border-0" value="{{ session.get('name', 'Admin') }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">New Password</label>
+                            <input type="password" name="admin_password" class="form-control bg-secondary text-white border-0" placeholder="Enter new password (optional)">
+                        </div>
+                        <button type="submit" class="btn btn-info fw-bold btn-sm w-100 py-2 rounded-pill">Update Profile</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Right Side: Registered Users Management & Document Verification -->
+            <div class="col-md-8">
+                <div class="card shadow-sm border-0 p-4 rounded-4">
+                    <h3 class="fw-bold mb-3 text-dark"><i class="fa-solid fa-users text-primary"></i> User Approvals & Documents</h3>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>Documents</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in users %}
+                                    {% if not user.is_admin %}
+                                    <tr>
+                                        <td class="fw-semibold">{{ user.name }}</td>
+                                        <td>{{ user.email }}</td>
+                                        <td><span class="badge bg-secondary">{{ user.role | capitalize }}</span></td>
+                                        <td>
+                                            <!-- View Documents Button triggering Modal -->
+                                            <button type="button" class="btn btn-sm btn-outline-info rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#docModal{{ user.id }}">
+                                                <i class="fa-solid fa-file-lines me-1"></i> View Docs
+                                            </button>
+                                        </td>
+                                        <td>
+                                            {% if user.is_approved %}
+                                                <span class="badge bg-success">Approved</span>
+                                            {% else %}
+                                                <span class="badge bg-warning text-dark">Pending</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="d-flex gap-1">
+                                                {% if not user.is_approved %}
+                                                    <form action="/admin/approve/{{ user.id }}" method="POST" class="d-inline">
+                                                        <button type="submit" class="btn btn-success btn-sm px-2 rounded-pill fw-bold" title="Approve User">Approve</button>
+                                                    </form>
+                                                {% elif user.has_pending_update %}
+                                                    <form action="/admin/approve_update/{{ user.id }}" method="POST" class="d-inline">
+                                                        <button type="submit" class="btn btn-warning btn-sm px-2 rounded-pill fw-bold text-dark" title="Approve Update">Approve Update</button>
+                                                    </form>
+                                                {% endif %}
+
+                                                <!-- Remove / Reject Button -->
+                                                <form action="/admin/delete_user/{{ user.id }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to remove this user?');">
+                                                    <button type="submit" class="btn btn-danger btn-sm px-2 rounded-pill fw-bold" title="Remove User"><i class="fa-solid fa-trash"></i></button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Modal to View User Details & Uploaded Evidence Documents -->
+<div class="modal fade" id="docModal{{ user.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content bg-dark text-white p-3 border-secondary rounded-4">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold"><i class="fa-solid fa-user-shield text-info me-2"></i> User Verification & Updates: {{ user.name }}</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <!-- Current Details Column -->
+                    <div class="col-md-6 border-end border-secondary">
+                        <h6 class="fw-bold text-secondary mb-3">Current Profile Details</h6>
+                        <p class="mb-1"><strong>Name:</strong> {{ user.name }}</p>
+                        <p class="mb-1"><strong>Email:</strong> {{ user.email }}</p>
+                        <p class="mb-3"><strong>Phone:</strong> {{ user.phone }}</p>
+                        <p class="mb-1"><strong>Role:</strong> {{ user.role | capitalize }}</p>
+                    </div>
+
+                    <!-- Pending Updated Details Column -->
+                    <div class="col-md-6">
+                        <h6 class="fw-bold text-warning mb-3">Requested Profile Changes</h6>
+                        {% if user.has_pending_update %}
+                            <p class="mb-1"><strong>New Name:</strong> <span class="text-info">{{ user.pending_name if user.pending_name else user.name }}</span></p>
+                            <p class="mb-3"><strong>New Phone:</strong> <span class="text-info">{{ user.pending_phone if user.pending_phone else user.phone }}</span></p>
+                            
+                            <p class="fw-bold text-info small mb-2">New Evidence Documents:</p>
+                            <ul class="list-unstyled small mb-0">
+                                {% if user.pending_nic %}
+                                    <li class="mb-1"><a href="{{ url_for('static', filename='uploads/' + user.pending_nic) }}" target="_blank" class="text-warning text-decoration-none"><i class="fa-solid fa-file-arrow-down me-1"></i> New NIC Document</a></li>
+                                {% endif %}
+                                {% if user.pending_bus_reg %}
+                                    <li class="mb-1"><a href="{{ url_for('static', filename='uploads/' + user.pending_bus_reg) }}" target="_blank" class="text-warning text-decoration-none"><i class="fa-solid fa-file-arrow-down me-1"></i> New Business Reg</a></li>
+                                {% endif %}
+                                {% if user.pending_driving_license %}
+                                    <li class="mb-1"><a href="{{ url_for('static', filename='uploads/' + user.pending_driving_license) }}" target="_blank" class="text-warning text-decoration-none"><i class="fa-solid fa-file-arrow-down me-1"></i> New Driving License</a></li>
+                                {% endif %}
+                                {% if user.pending_vehicle_license %}
+                                    <li class="mb-1"><a href="{{ url_for('static', filename='uploads/' + user.pending_vehicle_license) }}" target="_blank" class="text-warning text-decoration-none"><i class="fa-solid fa-file-arrow-down me-1"></i> New Vehicle License</a></li>
+                                {% endif %}
+                                {% if user.pending_vehicle_photo %}
+                                    <li class="mb-1"><a href="{{ url_for('static', filename='uploads/' + user.pending_vehicle_photo) }}" target="_blank" class="text-warning text-decoration-none"><i class="fa-solid fa-file-arrow-down me-1"></i> New Vehicle Photo</a></li>
+                                {% endif %}
+                                {% if user.pending_police_report %}
+                                    <li class="mb-1"><a href="{{ url_for('static', filename='uploads/' + user.pending_police_report) }}" target="_blank" class="text-warning text-decoration-none"><i class="fa-solid fa-file-arrow-down me-1"></i> New Police Report</a></li>
+                                {% endif %}
+                                {% if not user.pending_nic and not user.pending_bus_reg and not user.pending_driving_license and not user.pending_vehicle_license and not user.pending_vehicle_photo and not user.pending_police_report %}
+                                    <li class="text-muted small">No new files uploaded (Only text details changed).</li>
+                                {% endif %}
+                            </ul>
+                        {% else %}
+                            <p class="text-muted small italic">No pending update requests from this user.</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <hr class="border-secondary my-3">
+                <p class="fw-bold text-secondary mb-2 small">Original Registered Documents:</p>
+                <ul class="list-inline small mb-0">
+                    {% if user.nic_document %}<li class="list-inline-item me-3"><a href="{{ url_for('static', filename='uploads/' + user.nic_document) }}" target="_blank" class="text-light text-decoration-none"><i class="fa-solid fa-file me-1"></i> NIC</a></li>{% endif %}
+                    {% if user.business_reg %}<li class="list-inline-item me-3"><a href="{{ url_for('static', filename='uploads/' + user.business_reg) }}" target="_blank" class="text-light text-decoration-none"><i class="fa-solid fa-file me-1"></i> Business Reg</a></li>{% endif %}
+                    {% if user.driving_license %}<li class="list-inline-item me-3"><a href="{{ url_for('static', filename='uploads/' + user.driving_license) }}" target="_blank" class="text-light text-decoration-none"><i class="fa-solid fa-file me-1"></i> Driving License</a></li>{% endif %}
+                    {% if user.police_report %}<li class="list-inline-item"><a href="{{ url_for('static', filename='uploads/' + user.police_report) }}" target="_blank" class="text-light text-decoration-none"><i class="fa-solid fa-file me-1"></i> Police Report</a></li>{% endif %}
+                </ul>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-secondary btn-sm rounded-pill px-4" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+                                    {% endif %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

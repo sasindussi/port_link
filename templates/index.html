@@ -14,6 +14,18 @@
             border-bottom: 2px solid rgba(255, 255, 255, 0.1);
         }
 
+        /* Navbar Right Alignment Forced Fix */
+        .custom-navbar .container {
+            max-width: 100% !important;
+            padding-left: 30px;
+            padding-right: 30px;
+        }
+
+        #navbarNav {
+            margin-left: auto !important;
+            flex-grow: 0 !important;
+        }
+
         /* 3D Glass Water Effect for Nav Links & Buttons */
         .navbar-nav .nav-link {
             color: #ffffff !important;
@@ -98,7 +110,7 @@
 </head>
 <body class="bg-light">
 
-    <!-- 3D Navigation Bar with Glass Links & Logo -->
+    <!-- 3D Navigation Bar with Right-Aligned Glass Links & Logo -->
     <nav class="navbar navbar-expand-lg navbar-dark custom-navbar sticky-top py-3">
         <div class="container">
             <a class="navbar-brand fw-bold d-flex align-items-center" href="/">
@@ -112,15 +124,24 @@
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-                <ul class="navbar-nav align-items-center">
-                    <li class="nav-item"><a class="nav-link active" href="/">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/jobs">Available Jobs</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/contact">Contact Us</a></li>
-                    <li class="nav-item"><a class="nav-link btn-glass-signin ms-2" href="/login">Log In</a></li>
-                    <li class="nav-item"><a class="nav-link btn-glass-register ms-2" href="/register">Register</a></li>
-                </ul>
-            </div>
+            <div class="collapse navbar-collapse" id="navbarNav">
+    <ul class="navbar-nav align-items-center">
+        <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="/jobs">Available Jobs</a></li>
+        <li class="nav-item"><a class="nav-link" href="/contact">Contact Us</a></li>
+        
+        <!-- Check if user is logged in -->
+        {% if 'user_id' in session %}
+            <li class="nav-item"><a class="nav-link btn-glass-signin ms-2" href="/profile"><i class="fa-solid fa-user me-1 text-info"></i> Profile</a></li>
+            <li class="nav-item"><a class="nav-link btn-glass-register ms-2 text-white bg-danger border-danger" href="/logout"><i class="fa-solid fa-right-from-bracket me-1"></i> Logout</a></li>
+        {% else %}
+            <li class="nav-item"><a class="nav-link btn-glass-signin ms-2" href="/login">Log In</a></li>
+            <li class="nav-item"><a class="nav-link btn-glass-register ms-2" href="/register">Register</a></li>
+        {% endif %}
+        
+        <li class="nav-item"><a class="nav-link btn-glass-signin ms-2" href="/admin/login"><i class="fa-solid fa-shield-halved text-info"></i> Admin</a></li>
+    </ul>
+</div>
         </div>
     </nav>
 
