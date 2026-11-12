@@ -2,7 +2,7 @@ import os
 from flask import Blueprint, request, jsonify, render_template, redirect, url_for, session, flash
 from werkzeug.utils import secure_filename
 from app import db
-from app.models import User, Job
+from app.models import User, Job, JobApplication
 
 main_bp = Blueprint('main', __name__)
 
@@ -36,6 +36,13 @@ def register_page():
         role = request.form.get('role')
         phone = request.form.get('phone')
         
+        # Driver 1km rate capture (if role is driver)
+        rate_per_km_val = 0.0
+        if role == 'driver':
+            rate_input = request.form.get('rate_per_km')
+            if rate_input:
+                rate_per_km_val = float(rate_input)
+                
         if User.query.filter_by(email=email).first():
             flash('Email already exists!', 'danger')
             return redirect(url_for('main.register_page'))
@@ -53,6 +60,7 @@ def register_page():
             password=password,
             role=role,
             phone=phone,
+            rate_per_km=rate_per_km_val, # මෙතැනට rate එක save වෙනවා
             nic_document=nic_doc,
             business_reg=bus_reg,
             driving_license=drv_lic,
@@ -126,7 +134,7 @@ def logout():
     flash('Logged out successfully.', 'info')
     return redirect(url_for('main.home'))
 
-# User Profile View & Update Request
+# User Profile View & Update Request (Driver Rate per KM included)
 @main_bp.route('/profile', methods=['GET', 'POST'])
 def user_profile():
     if 'user_id' not in session:
@@ -139,6 +147,12 @@ def user_profile():
         user.pending_name = request.form.get('fullname')
         user.pending_phone = request.form.get('phone')
         
+        # If user is a driver, update rate per km
+        if user.role == 'driver':
+            rate = request.form.get('rate_per_km')
+            if rate:
+                user.rate_per_km = float(rate)
+                
         nic_doc = save_file(request.files.get('nic_doc'))
         bus_reg = save_file(request.files.get('business_reg'))
         drv_lic = save_file(request.files.get('driving_license'))
@@ -194,6 +208,7 @@ def post_job():
         
     return render_template('post_job.html')
 
+# Driver Apply for Job (Allows multiple drivers to apply via JobApplication table)
 @main_bp.route('/apply-job/<int:job_id>', methods=['POST'])
 def apply_job(job_id):
     if 'user_id' not in session:
@@ -206,10 +221,66 @@ def apply_job(job_id):
         return redirect(url_for('main.jobs_page'))
         
     job = Job.query.get_or_404(job_id)
-    job.driver_id = user.id
-    job.status = f'Accepted by Driver: {user.name}'
+    
+    # Check if already applied
+    existing_app = JobApplication.query.filter_by(job_id=job.id, driver_id=user.id).first()
+    if existing_app:
+        flash('You have already applied for this job!', 'warning')
+        return redirect(url_for('main.jobs_page'))
+        
+    new_application = JobApplication(
+        job_id=job.id,
+        driver_id=user.id,
+        status='Pending'
+    )
+    db.session.add(new_application)
     db.session.commit()
-    flash('Successfully applied and accepted the transport job!', 'success')
+    
+    flash('Successfully applied for the transport job!', 'success')
+    return redirect(url_for('main.jobs_page'))
+
+# Client Delete Job Route
+@main_bp.route('/job/delete/<int:job_id>', methods=['POST'])
+def delete_job(job_id):
+    if 'user_id' not in session:
+        flash('Please log in first.', 'danger')
+        return redirect(url_for('main.login_page'))
+        
+    job = Job.query.get_or_404(job_id)
+    
+    # Check if the logged-in user is the owner of this job
+    if job.client_id != session['user_id']:
+        flash('Unauthorized action! You can only delete your own job posts.', 'danger')
+        return redirect(url_for('main.jobs_page'))
+        
+    db.session.delete(job)
+    db.session.commit()
+    flash('Job post deleted successfully!', 'success')
+    return redirect(url_for('main.jobs_page'))
+
+# Client Selects a Driver from Applicants
+@main_bp.route('/job/<int:job_id>/select-driver/<int:driver_id>', methods=['POST'])
+def select_driver(job_id, driver_id):
+    if 'user_id' not in session:
+        flash('Please log in first.', 'danger')
+        return redirect(url_for('main.login_page'))
+        
+    job = Job.query.get_or_404(job_id)
+    if job.client_id != session['user_id']:
+        flash('Unauthorized action!', 'danger')
+        return redirect(url_for('main.jobs_page'))
+        
+    # Update job assignment and status
+    job.driver_id = driver_id
+    job.status = 'Assigned'
+    
+    # Update specific application status to Selected
+    app = JobApplication.query.filter_by(job_id=job_id, driver_id=driver_id).first()
+    if app:
+        app.status = 'Selected'
+        
+    db.session.commit()
+    flash('Driver selected successfully for your transport job!', 'success')
     return redirect(url_for('main.jobs_page'))
 
 # Admin Dashboard
