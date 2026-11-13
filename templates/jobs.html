@@ -1,228 +1,270 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Port Link - Available Jobs</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<style>
-/* 3D Modern Navbar with Gradient */
-.custom-navbar {
-    background: linear-gradient(135deg, #0f172a 0%, #1e293b 20%);
-    box-shadow: 0 10px 25px 5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
-    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
-}
-/* Navbar Right Alignment Forced Fix */
-.custom-navbar .container {
-    max-width: 100% !important;
-    padding-left: 30px;
-    padding-right: 30px;
-}
-#navbarNav {
-    margin-left: auto !important;
-    flex-grow: 0 !important;
-}
-/* 3D Glass Water Effect for Nav Links & Buttons */
-.navbar-nav .nav-link {
-    color: #ffffff !important;
-    font-weight: 500;
-    padding: 8px 16px !important;
-    margin: 0 4px;
-    border-radius: 50px;
-    background: rgba(255, 255, 255, 0.03);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.15), 0 4px 6px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-}
-.navbar-nav .nav-link:hover, .navbar-nav .nav-link.active {
-    background: rgba(2, 132, 199, 0.25);
-    border: 1px solid rgba(56, 189, 248, 0.4);
-    box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.3), 0 6px 15px rgba(2, 132, 199, 0.3);
-    transform: translateY(-2px);
-    color: #38bdf8 !important;
-}
-.navbar-nav .nav-link.btn-glass-signin {
-    background: rgba(255, 255, 255, 0.08);
-}
-.navbar-nav .nav-link.btn-glass-register {
-    background: linear-gradient(135deg, rgba(2, 132, 199, 0.4), rgba(14, 165, 233, 0.4));
-    border: 1px solid rgba(56, 189, 248, 0.5);
-    font-weight: 600;
-}
-/* 3D Hero Section (Height balanced) */
-.hero-section {
-    background: linear-gradient(135deg, #0284c7 0%, #0369a1 50%, #0f172a 100%);
-    color: white;
-    padding: 60px 0;
-    border-radius: 0 0 35px 35px;
-    box-shadow: 0 15px 25px -10px rgba(2, 132, 199, 0.4);
-}
-/* Watermark Feature Section Background with token link */
-.watermark-section {
-    position: relative;
-    background-color: #f8f9fa;
-    overflow: hidden;
-}
-.watermark-section::before {
-    content: "";
-    position: absolute;
-    top: 60%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 750px;
-    height: 750px;
-    background-image: url('https://votwxipamylcvrthtdhg.supabase.co/storage/v1/object/sign/port_link/logo.webp?token=eyJraWQiOiJzNDYzNmYyZS01NDc1LTQ2MmItODUwZC02Y2Q3ZTIzNzY1MzkiLCJhbGciOiJIUzUxMiJ9.eyJ1cmwiOiJwb3J0X2xpbmsvbG9nby53ZWJwliwic2NvcGUiOiJkb3dubG9hZCIsImlhdCI6MTc5MjY5NzUzOCwiZXhwIjo0OTQ2Mjk3NTM4fQ.3Aw-FVqzgyao_rmLK0n2h-3cPOKbiw_-csONm6taVFjRsNQuo2FcADDhWsmYyEGz9Sc7-QtAABpDj1sHu608xA');
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-    opacity: 0.1;
-    pointer-events: none;
-    z-index: 0;
-}
-.watermark-section .container {
-    position: relative;
-    z-index: 1;
-}
-.feature-card {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    border: none;
-    border-radius: 15px;
-}
-.feature-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 15px 30px rgba(0,0,0,0.1) !important;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Port Link - Available Jobs</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* 3D Modern Navbar with Gradient */
+        .custom-navbar {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 20%);
+            box-shadow: 0 10px 25px 5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        }
+        .custom-navbar .container {
+            max-width: 100% !important;
+            padding-left: 30px;
+            padding-right: 30px;
+        }
+        #navbarNav {
+            margin-left: auto !important;
+            flex-grow: 0 !important;
+        }
+        /* 3D Glass Water Effect for Nav Links & Buttons */
+        .navbar-nav .nav-link {
+            color: #ffffff !important;
+            font-weight: 500;
+            padding: 8px 16px !important;
+            margin: 0 4px;
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.15), 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        .navbar-nav .nav-link:hover, .navbar-nav .nav-link.active {
+            background: rgba(2, 132, 199, 0.25);
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.3), 0 6px 15px rgba(2, 132, 199, 0.3);
+            transform: translateY(-2px);
+            color: #38bdf8 !important;
+        }
+        /* 3D Hero Section */
+        .hero-section {
+            background: linear-gradient(135deg, #0284c7 0%, #0369a1 50%, #0f172a 100%);
+            color: white;
+            padding: 60px 0;
+            border-radius: 0 0 35px 35px;
+            box-shadow: 0 15px 25px -10px rgba(2, 132, 199, 0.4);
+        }
+        .watermark-section {
+            position: relative;
+            background-color: #f8f9fa;
+            overflow: hidden;
+        }
+        .feature-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: none;
+            border-radius: 15px;
+        }
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1) !important;
+        }
+    </style>
 </head>
 <body>
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-dark custom-navbar sticky-top py-3">
-<div class="container">
-<a class="navbar-brand fw-bold d-flex align-items-center" href="/">
-<span class="fs-4 tracking-wide">Port Link <span class="text-info">Portal</span></span>
-</a>
-<div class="collapse navbar-collapse" id="navbarNav">
-<ul class="navbar-nav ms-auto align-items-center">
-<li class="nav-item"><a class="nav-link" href="/">Home</a></li>
-<li class="nav-item"><a class="nav-link active" href="/jobs">Available Jobs</a></li>
-<li class="nav-item"><a class="nav-link" href="/contact">Contact Us</a></li>
-{% if session.get('role') == 'client' %}
-<li class="nav-item"><a class="nav-link btn btn-info btn-sm text-dark px-3 ms-2 fw-bold rounded-pill" href="/post-job"><i class="fa-solid fa-plus me-1"></i> Post Job</a></li>
-{% endif %}
-{% if 'user_id' in session %}
-<li class="nav-item"><a class="nav-link ms-2" href="/profile"><i class="fa-solid fa-user me-1 text-info"></i> Profile</a></li>
-<li class="nav-item"><a class="nav-link text-white bg-danger px-3 ms-2 rounded-pill" href="/logout"><i class="fa-solid fa-right-from-bracket me-1"></i> Logout</a></li>
-{% else %}
-<li class="nav-item"><a class="nav-link ms-2" href="/login">Log In</a></li>
-<li class="nav-item"><a class="nav-link btn btn-primary text-white px-3 ms-2 rounded-pill" href="/register">Register</a></li>
-{% endif %}
-</ul>
-</div>
-</div>
+    <div class="container">
+        <a class="navbar-brand fw-bold d-flex align-items-center" href="/">
+            <span class="fs-4 tracking-wide">Port Link <span class="text-info">Portal</span></span>
+        </a>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+                <li class="nav-item"><a class="nav-link active" href="/jobs">Available Jobs</a></li>
+                <li class="nav-item"><a class="nav-link" href="/contact">Contact Us</a></li>
+                {% if session.get('role') == 'client' %}
+                <li class="nav-item"><a class="nav-link btn btn-info btn-sm text-dark px-3 ms-2 fw-bold rounded-pill" href="/post-job"><i class="fa-solid fa-plus me-1"></i> Post Job</a></li>
+                {% endif %}
+                {% if 'user_id' in session %}
+                <li class="nav-item"><a class="nav-link ms-2" href="/profile"><i class="fa-solid fa-user me-1 text-info"></i> Profile</a></li>
+                <li class="nav-item"><a class="nav-link text-white bg-danger px-3 ms-2 rounded-pill" href="/logout"><i class="fa-solid fa-right-from-bracket me-1"></i> Logout</a></li>
+                {% else %}
+                <li class="nav-item"><a class="nav-link ms-2" href="/login">Log In</a></li>
+                <li class="nav-item"><a class="nav-link btn btn-primary text-white px-3 ms-2 rounded-pill" href="/register">Register</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
 </nav>
 
 <!-- Watermark Section with Glass Cards -->
 <div class="watermark-section py-5">
-<div class="container">
-<!-- Flash Messages -->
-{% with messages = get_flashed_messages(with_categories=true) %}
-{% if messages %}
-{% for category, message in messages %}
-<div class="alert alert-{{ category }} py-2 small" role="alert">{{ message }}</div>
-{% endfor %}
-{% endif %}
-{% endwith %}
+    <div class="container">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} py-2 small" role="alert">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-<h2 class="text-dark fw-bold"><i class="fa-solid fa-truck-fast text-primary me-2"></i> Available Container Transport Jobs</h2>
-{% if session.get('role') == 'client' %}
-<a href="/post-job" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm"><i class="fa-solid fa-plus me-1"></i> Post New Job</a>
-{% endif %}
-</div>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="text-dark fw-bold"><i class="fa-solid fa-truck-fast text-primary me-2"></i> Available Container Transport Jobs</h2>
+            {% if session.get('role') == 'client' %}
+            <a href="/post-job" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm"><i class="fa-solid fa-plus me-1"></i> Post New Job</a>
+            {% endif %}
+        </div>
 
-<div class="row" id="jobListContainer">
-{% if jobs %}
-{% for job in jobs %}
-<div class="col-md-4 mb-4">
-<div class="card feature-card p-4 h-100 d-flex flex-column shadow-sm bg-white">
-<h5 class="fw-bold text-primary mb-3"><i class="fa-solid fa-box me-2"></i> {{ job.container_size }}</h5>
-<p class="text-dark mb-1"><i class="fa-solid fa-location-dot me-2 text-danger"></i><strong>Pickup:</strong> {{ job.pickup_location }}</p>
-<p class="text-dark mb-2"><i class="fa-solid fa-flag-checkered me-2 text-success"></i><strong>Dropoff:</strong> {{ job.dropoff_location }}</p>
-<p class="text-muted small mb-3"><strong>Notes:</strong> {{ job.description if job.description else 'No specific instructions provided.' }}</p>
+        <div class="row" id="jobListContainer">
+            {% if jobs %}
+                {% for job in jobs %}
+                <div class="col-md-4 mb-4">
+                    <div class="card feature-card p-4 h-100 d-flex flex-column shadow-sm bg-white">
+                        <h5 class="fw-bold text-primary mb-3"><i class="fa-solid fa-box me-2"></i> {{ job.container_size }}</h5>
+                        <p class="text-dark mb-1"><i class="fa-solid fa-location-dot me-2 text-danger"></i><strong>Pickup:</strong> {{ job.pickup_location }}</p>
+                        <p class="text-dark mb-2"><i class="fa-solid fa-flag-checkered me-2 text-success"></i><strong>Dropoff:</strong> {{ job.dropoff_location }}</p>
+                        <p class="text-muted small mb-3"><strong>Notes:</strong> {{ job.description if job.description else 'No specific instructions provided.' }}</p>
+                        
+                        <!-- Job Status Badge -->
+                        <div class="mb-3">
+                            <span class="badge {% if job.status == 'Pending' %}bg-warning text-dark{% else %}bg-success{% endif %} px-3 py-2">{{ job.status }}</span>
+                        </div>
 
-<!-- Job Status Badge -->
-<div class="mb-3">
-<span class="badge {% if job.status == 'Pending' %}bg-warning text-dark{% else %}bg-success{% endif %} px-3 py-2">{{ job.status }}</span>
-</div>
+                        <div class="mt-auto">
+                            {% if 'user_id' in session %}
+                                {% if session.get('role') == 'driver' %}
+                                    <!-- Driver Apply Form -->
+                                    <form action="/apply-job/{{ job.id }}" method="POST">
+                                        <button type="submit" class="btn btn-success w-100 rounded-pill fw-bold shadow-sm">Apply for Job</button>
+                                    </form>
 
-<div class="mt-auto">
-{% if 'user_id' in session %}
-{% if session.get('role') == 'driver' %}
-<!-- Driver Apply Form -->
-<form action="/apply-job/{{ job.id }}" method="POST">
-<button type="submit" class="btn btn-success w-100 rounded-pill fw-bold shadow-sm">Apply for Job</button>
-</form>
-{% elif session.get('role') == 'client' and session.get('user_id') == job.client_id %}
-<!-- Client View: List of Applicants with Rates, Select Button, and Delete Job Button -->
-<div class="border-top pt-3 mt-2">
-<div class="d-flex justify-content-between align-items-center mb-2">
-<h6 class="fw-bold text-dark small mb-0"><i class="fa-solid fa-users text-info me-1"></i> Applicants (Drivers):</h6>
-<!-- Delete Job Button -->
-<form action="/job/delete/{{ job.id }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this job post?');">
-<button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-2 py-0 small fw-bold"><i class="fa-solid fa-trash me-1"></i> Delete Job</button>
-</form>
-</div>
+                                {% elif session.get('role') == 'client' and session.get('user_id') == job.client_id %}
+                                    <!-- Client View: List of Applicants with Ratings, Clickable Reviews Modal & Selection -->
+                                    <div class="border-top pt-3 mt-2">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <h6 class="fw-bold text-dark small mb-0"><i class="fa-solid fa-users text-info me-1"></i> Applicants (Drivers):</h6>
+                                            <form action="/job/delete/{{ job.id }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this job post?');">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-2 py-0 small fw-bold"><i class="fa-solid fa-trash me-1"></i> Delete Job</button>
+                                            </form>
+                                        </div>
 
-{% if job.applications %}
-<ul class="list-unstyled small mb-0">
-{% for app in job.applications %}
-<li class="d-flex justify-content-between align-items-center mb-2 bg-light p-2 rounded border">
-<div>
-<strong>{{ app.driver.name }}</strong><br>
-<span class="text-success fw-bold">Rate: LKR {{ app.driver.rate_per_km if app.driver.rate_per_km else 0.0 }}/km</span><br>
-<span class="text-muted">Phone: {{ app.driver.phone }}</span>
-</div>
-<div>
-{% if job.status == 'Pending' %}
-<form action="/job/{{ job.id }}/select-driver/{{ app.driver.id }}" method="POST" class="d-inline">
-<button type="submit" class="btn btn-sm btn-primary rounded-pill px-3 fw-bold shadow-sm">Select</button>
-</form>
-{% else %}
-<span class="badge {% if app.status == 'Selected' %}bg-success{% else %}bg-secondary{% endif %}">{{ app.status }}</span>
-{% endif %}
-</div>
-</li>
-{% endfor %}
-</ul>
-{% else %}
-<p class="text-muted small fst-italic mb-0">No drivers applied yet.</p>
-{% endif %}
-</div>
-{% else %}
-<p class="text-muted small text-center mb-0 fst-italic">Logged in as Client</p>
-{% endif %}
-{% else %}
-<a href="/register" class="btn btn-outline-primary w-100 rounded-pill fw-bold">Register as Driver to Apply</a>
-{% endif %}
-</div>
+                                        {% if job.applications %}
+                                        <ul class="list-unstyled small mb-0">
+                                            {% for app in job.applications %}
+                                            <li class="d-flex justify-content-between align-items-center mb-2 bg-light p-2 rounded border">
+                                                <div>
+                                                    <strong>{{ app.driver.name }}</strong><br>
+                                                    <!-- ⭐ Clickable Driver Rating and Unique Review Modal Trigger -->
+                                                    <span class="text-warning">
+                                                        <i class="fa-solid fa-star"></i> {{ app.driver.average_rating }} / 5 
+                                                        <a href="#" class="text-decoration-none fw-bold text-primary small ms-1" data-bs-toggle="modal" data-bs-target="#reviewsModal_{{ job.id }}_{{ app.driver.id }}">
+                                                            ({{ app.driver.received_reviews|length }} reviews)
+                                                        </a>
+                                                    </span><br>
+                                                    <span class="text-success fw-bold">Rate: LKR {{ app.driver.rate_per_km if app.driver.rate_per_km else 0.0 }}/km</span><br>
+                                                    <span class="text-muted">Phone: {{ app.driver.phone }}</span>
+                                                </div>
+                                                <div>
+                                                    {% if job.status == 'Pending' %}
+                                                    <form action="/job/{{ job.id }}/select-driver/{{ app.driver.id }}" method="POST" class="d-inline">
+                                                        <button type="submit" class="btn btn-sm btn-primary rounded-pill px-3 fw-bold shadow-sm">Select</button>
+                                                    </form>
+                                                    {% else %}
+                                                    <span class="badge {% if app.status == 'Selected' %}bg-success{% else %}bg-secondary{% endif %}">{{ app.status }}</span>
+                                                    {% endif %}
+                                                </div>
+                                            </li>
+                                            {% endfor %}
+                                        </ul>
+                                        {% else %}
+                                        <p class="text-muted small fst-italic mb-0">No drivers applied yet.</p>
+                                        {% endif %}
+                                    </div>
 
-</div>
-</div>
-{% endfor %}
-{% else %}
-<div class="col-12 text-center py-5">
-<div class="card feature-card p-5 mx-auto shadow-sm" style="max-width: 500px;">
-<i class="fa-solid fa-folder-open text-muted fa-3x mb-3"></i>
-<h5 class="text-muted">No transport jobs available right now.</h5>
-</div>
-</div>
-{% endif %}
-</div>
-</div>
+                                    <!-- ⭐ Client Rate & Review Section for Assigned Jobs -->
+                                    {% if job.status == 'Assigned' %}
+                                    <div class="mt-3 p-3 bg-light rounded border">
+                                        <h6 class="fw-bold text-success mb-2"><i class="fa-solid fa-star me-1"></i> Rate & Review Assigned Driver</h6>
+                                        <form action="/job/{{ job.id }}/rate-driver" method="POST">
+                                            <div class="mb-2">
+                                                <label class="form-label small fw-bold">Rating</label>
+                                                <select class="form-select form-select-sm" name="rating" required>
+                                                    <option value="5">⭐⭐⭐⭐⭐ (5 - Excellent)</option>
+                                                    <option value="4">⭐⭐⭐⭐ (4 - Good)</option>
+                                                    <option value="3">⭐⭐⭐ (3 - Average)</option>
+                                                    <option value="2">⭐⭐ (2 - Poor)</option>
+                                                    <option value="1">⭐ (1 - Terrible)</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-2">
+                                                <label class="form-label small fw-bold">Review Comment</label>
+                                                <textarea class="form-control form-control-sm" name="comment" rows="2" placeholder="Write feedback about driver..."></textarea>
+                                            </div>
+                                            <button type="submit" class="btn btn-sm btn-primary w-100 rounded-pill fw-bold">Submit Review</button>
+                                        </form>
+                                    </div>
+                                    {% endif %}
+
+                                {% else %}
+                                    <p class="text-muted small text-center mb-0 fst-italic">Logged in as Client</p>
+                                {% endif %}
+                            {% else %}
+                                <a href="/register" class="btn btn-outline-primary w-100 rounded-pill fw-bold">Register as Driver to Apply</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 🚀 Modals Moved OUTSIDE the Card Loop -->
+                {% if session.get('role') == 'client' and session.get('user_id') == job.client_id %}
+                    {% if job.applications %}
+                        {% for app in job.applications %}
+                        <div class="modal fade" id="reviewsModal_{{ job.id }}_{{ app.driver.id }}" tabindex="-1" aria-hidden="true" data-bs-backdrop="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content rounded-4 shadow">
+                                    <div class="modal-header bg-dark text-white">
+                                        <h5 class="modal-title fs-6 fw-bold"><i class="fa-solid fa-star text-warning me-1"></i> Reviews for {{ app.driver.name }}</h5>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body bg-light">
+                                        {% if app.driver.received_reviews %}
+                                            <div class="list-group">
+                                                {% for review in app.driver.received_reviews %}
+                                                <div class="list-group-item mb-2 rounded-3 border-0 shadow-sm p-3">
+                                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                                        <span class="fw-bold text-primary small"><i class="fa-solid fa-user-circle me-1"></i> {{ review.client.name }}</span>
+                                                        <span class="text-warning small">
+                                                            {% for i in range(review.rating) %}⭐{% endfor %}
+                                                        </span>
+                                                    </div>
+                                                    <p class="text-dark small mb-1 fst-italic">"{{ review.comment if review.comment else 'No comment provided.' }}"</p>
+                                                    <small class="text-muted" style="font-size: 11px;">{{ review.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                                                </div>
+                                                {% endfor %}
+                                            </div>
+                                        {% else %}
+                                            <p class="text-muted text-center small my-3 fst-italic">No reviews received yet for this driver.</p>
+                                        {% endif %}
+                                    </div>
+                                    <div class="modal-footer bg-white border-0">
+                                        <button type="button" class="btn btn-sm btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endif %}
+
+                {% endfor %}
+            {% else %}
+                <div class="col-12 text-center py-5">
+                    <div class="card feature-card p-5 mx-auto shadow-sm" style="max-width: 500px;">
+                        <i class="fa-solid fa-folder-open text-muted fa-3x mb-3"></i>
+                        <h5 class="text-muted">No transport jobs available right now.</h5>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

@@ -1,10 +1,15 @@
 import os
+import random
 from flask import Blueprint, request, jsonify, render_template, redirect, url_for, session, flash
 from werkzeug.utils import secure_filename
-from app import db
-from app.models import User, Job, JobApplication
+from flask_mail import Message
+from app import db, mail
+from app.models import User, Job, JobApplication, Review
 
 main_bp = Blueprint('main', __name__)
+
+# Temporary OTP storage
+otp_storage = {}
 
 # Helper function to save uploaded files
 def save_file(file_storage):
@@ -60,7 +65,7 @@ def register_page():
             password=password,
             role=role,
             phone=phone,
-            rate_per_km=rate_per_km_val, # මෙතැනට rate එක save වෙනවා
+            rate_per_km=rate_per_km_val,
             nic_document=nic_doc,
             business_reg=bus_reg,
             driving_license=drv_lic,
@@ -74,7 +79,6 @@ def register_page():
         db.session.commit()
         flash('Registration successful! Awaiting admin approval.', 'success')
         return redirect(url_for('main.login_page'))
-        
     return render_template('register.html')
 
 # Login Route
@@ -106,6 +110,75 @@ def login_page():
             
     return render_template('login.html')
 
+# Forgot Password Route (Sends OTP via SMTP)
+@main_bp.route('/forgot-password', methods=['GET', 'POST'])
+def forgot_password():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        user = User.query.filter_by(email=email).first()
+        
+        if not user:
+            flash('No account found with this email address.', 'danger')
+            return redirect(url_for('main.forgot_password'))
+            
+        # Generate 6-digit OTP
+        otp = str(random.randint(100000, 999999))
+        otp_storage[email] = otp
+        
+        # Send OTP via SMTP (Gmail)
+        try:
+            msg = Message(
+                subject="Port Link - Password Reset OTP",
+                recipients=[email],
+                body=f"Hello {user.name},\n\nYour OTP for password reset is: {otp}\n\nThis OTP is valid for 10 minutes. Do not share it with anyone."
+            )
+            mail.send(msg)
+            flash('6-digit OTP has been sent to your email address. Please check your inbox.', 'success')
+            return redirect(url_for('main.verify_otp', email=email))
+        except Exception as e:
+            print("Mail Error:", e)
+            flash('Failed to send OTP email. Please check your email configuration.', 'danger')
+            
+    return render_template('forgot_password.html')
+
+# Verify OTP Route
+@main_bp.route('/verify-otp', methods=['GET', 'POST'])
+def verify_otp():
+    email = request.args.get('email')
+    if request.method == 'POST':
+        entered_otp = request.form.get('otp')
+        if otp_storage.get(email) == entered_otp:
+            flash('OTP verified successfully! Now you can reset your password.', 'success')
+            return redirect(url_for('main.reset_password', email=email))
+        else:
+            flash('Invalid or expired OTP. Please try again.', 'danger')
+            
+    return render_template('verify_otp.html', email=email)
+
+# Reset Password Route
+@main_bp.route('/reset-password/<email>', methods=['GET', 'POST'])
+def reset_password(email):
+    if request.method == 'POST':
+        new_password = request.form.get('password')
+        confirm_password = request.form.get('confirm_password')
+        
+        if new_password != confirm_password:
+            flash('Passwords do not match!', 'danger')
+            return redirect(url_for('main.reset_password', email=email))
+            
+        user = User.query.filter_by(email=email).first()
+        if user:
+            user.password = new_password
+            db.session.commit()
+            
+            if email in otp_storage:
+                del otp_storage[email]
+                
+            flash('Password reset successful! Please log in with your new password.', 'success')
+            return redirect(url_for('main.login_page'))
+            
+    return render_template('reset_password.html', email=email)
+
 # Admin Login Route
 @main_bp.route('/admin/login', methods=['GET', 'POST'])
 def admin_login():
@@ -134,7 +207,7 @@ def logout():
     flash('Logged out successfully.', 'info')
     return redirect(url_for('main.home'))
 
-# User Profile View & Update Request (Driver Rate per KM included)
+# User Profile View & Update Request
 @main_bp.route('/profile', methods=['GET', 'POST'])
 def user_profile():
     if 'user_id' not in session:
@@ -142,12 +215,10 @@ def user_profile():
         return redirect(url_for('main.login_page'))
         
     user = User.query.get_or_404(session['user_id'])
-    
     if request.method == 'POST':
         user.pending_name = request.form.get('fullname')
         user.pending_phone = request.form.get('phone')
         
-        # If user is a driver, update rate per km
         if user.role == 'driver':
             rate = request.form.get('rate_per_km')
             if rate:
@@ -180,7 +251,7 @@ def jobs_page():
     jobs = Job.query.all()
     return render_template('jobs.html', jobs=jobs)
 
-# Client Post Job Route
+# Client Post Job Route (With email notification to all approved drivers)
 @main_bp.route('/post-job', methods=['GET', 'POST'])
 def post_job():
     if 'user_id' not in session:
@@ -203,40 +274,108 @@ def post_job():
         )
         db.session.add(new_job)
         db.session.commit()
-        flash('Job posted successfully!', 'success')
+        
+        # Send email notification to all approved drivers
+        try:
+            drivers = User.query.filter_by(role='driver', is_approved=True).all()
+            driver_emails = [d.email for d in drivers if d.email]
+            
+            if driver_emails:
+                from flask import current_app
+                msg = Message(
+                    subject="Port Link - New Transport Job Posted!",
+                    recipients=[current_app.config.get('MAIL_USERNAME')],
+                    bcc=driver_emails,
+                    body=f"Hello Driver,\n\nA new transport job has been posted by {user.name}!\n\nPickup: {new_job.pickup_location}\nDropoff: {new_job.dropoff_location}\nContainer Size: {new_job.container_size}\n\nPlease log in to the Port Link platform to view details and apply.\n\nBest Regards,\nPort Link Team"
+                )
+                mail.send(msg)
+        except Exception as e:
+            print("Job Notification Email Error:", e)
+
+        flash('Job posted successfully and notifications sent to drivers!', 'success')
         return redirect(url_for('main.jobs_page'))
         
     return render_template('post_job.html')
 
-# Driver Apply for Job (Allows multiple drivers to apply via JobApplication table)
+# Driver Apply for Job (With email notification to the job owner / client)
 @main_bp.route('/apply-job/<int:job_id>', methods=['POST'])
 def apply_job(job_id):
     if 'user_id' not in session:
         flash('Please log in as a driver to apply.', 'danger')
         return redirect(url_for('main.login_page'))
         
-    user = User.query.get_or_404(session['user_id'])
-    if user.role != 'driver':
+    driver = User.query.get_or_404(session['user_id'])
+    if driver.role != 'driver':
         flash('Only registered drivers can apply for transport jobs!', 'danger')
         return redirect(url_for('main.jobs_page'))
         
     job = Job.query.get_or_404(job_id)
     
-    # Check if already applied
-    existing_app = JobApplication.query.filter_by(job_id=job.id, driver_id=user.id).first()
+    existing_app = JobApplication.query.filter_by(job_id=job.id, driver_id=driver.id).first()
     if existing_app:
         flash('You have already applied for this job!', 'warning')
         return redirect(url_for('main.jobs_page'))
         
     new_application = JobApplication(
         job_id=job.id,
-        driver_id=user.id,
+        driver_id=driver.id,
         status='Pending'
     )
     db.session.add(new_application)
     db.session.commit()
     
-    flash('Successfully applied for the transport job!', 'success')
+    # Send email notification to the client
+    try:
+        client = User.query.get(job.client_id)
+        if client and client.email:
+            msg = Message(
+                subject="Port Link - New Driver Request for your Job!",
+                recipients=[client.email],
+                body=f"Hello {client.name},\n\nDriver {driver.name} has requested/applied for your transport job ({job.pickup_location} to {job.dropoff_location}).\n\nPlease log in to your Port Link dashboard to view the driver's details and approve the selection.\n\nBest Regards,\nPort Link Team"
+            )
+            mail.send(msg)
+    except Exception as e:
+        print("Driver Request Email Error:", e)
+
+    flash('Successfully applied for the transport job and notified the client!', 'success')
+    return redirect(url_for('main.jobs_page'))
+
+# Client Rate Driver Route
+@main_bp.route('/job/<int:job_id>/rate-driver', methods=['POST'])
+def rate_driver(job_id):
+    if 'user_id' not in session:
+        flash('Please log in first.', 'danger')
+        return redirect(url_for('main.login_page'))
+        
+    job = Job.query.get_or_404(job_id)
+    if job.client_id != session['user_id']:
+        flash('Unauthorized action!', 'danger')
+        return redirect(url_for('main.jobs_page'))
+        
+    if not job.driver_id:
+        flash('No driver assigned to this job yet!', 'warning')
+        return redirect(url_for('main.jobs_page'))
+        
+    rating = request.form.get('rating')
+    comment = request.form.get('comment')
+    
+    existing_review = Review.query.filter_by(job_id=job.id, client_id=session['user_id']).first()
+    if existing_review:
+        existing_review.rating = int(rating)
+        existing_review.comment = comment
+        flash('Review updated successfully!', 'success')
+    else:
+        new_review = Review(
+            job_id=job.id,
+            client_id=session['user_id'],
+            driver_id=job.driver_id,
+            rating=int(rating),
+            comment=comment
+        )
+        db.session.add(new_review)
+        flash('Driver rated and reviewed successfully!', 'success')
+        
+    db.session.commit()
     return redirect(url_for('main.jobs_page'))
 
 # Client Delete Job Route
@@ -247,8 +386,6 @@ def delete_job(job_id):
         return redirect(url_for('main.login_page'))
         
     job = Job.query.get_or_404(job_id)
-    
-    # Check if the logged-in user is the owner of this job
     if job.client_id != session['user_id']:
         flash('Unauthorized action! You can only delete your own job posts.', 'danger')
         return redirect(url_for('main.jobs_page'))
@@ -270,11 +407,9 @@ def select_driver(job_id, driver_id):
         flash('Unauthorized action!', 'danger')
         return redirect(url_for('main.jobs_page'))
         
-    # Update job assignment and status
     job.driver_id = driver_id
     job.status = 'Assigned'
     
-    # Update specific application status to Selected
     app = JobApplication.query.filter_by(job_id=job_id, driver_id=driver_id).first()
     if app:
         app.status = 'Selected'
@@ -334,11 +469,11 @@ def approve_profile_update(user_id):
         user.pending_police_report = None
         user.has_pending_update = False
         db.session.commit()
-        flash(f'Profile update for {user.name} approved successfully!', 'success')
         
+    flash(f'Profile update for {user.name} approved successfully!', 'success')
     return redirect(url_for('main.admin_dashboard'))
 
-# Admin Delete User
+# Admin Delete User (With cascade/safety checks for driver applications)
 @main_bp.route('/admin/delete_user/<int:user_id>', methods=['POST'])
 def delete_user(user_id):
     if 'user_id' not in session or not session.get('is_admin'):
@@ -349,6 +484,10 @@ def delete_user(user_id):
     if user.is_admin:
         flash('Cannot delete admin account!', 'danger')
         return redirect(url_for('main.admin_dashboard'))
+        
+    # Safety check: Delete driver's job applications first if user is a driver
+    if user.role == 'driver':
+        JobApplication.query.filter_by(driver_id=user.id).delete()
         
     db.session.delete(user)
     db.session.commit()
