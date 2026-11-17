@@ -4,16 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Port Link - Admin Dashboard</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
 .custom-navbar {
-    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
 }
 body {
-    background-color: #f8f9fa;
+background-color: #f8f9fa;
 }
 </style>
 </head>
@@ -63,8 +62,17 @@ body {
 <div class="col-md-8">
 <div class="card shadow-sm border-0 p-4 rounded-4">
 <h3 class="fw-bold mb-3 text-dark"><i class="fa-solid fa-users text-primary"></i> User Approvals & Documents</h3>
+
+<!-- 🔍 Live Search Box Added Here -->
+<div class="mb-3">
+<div class="input-group">
+<span class="input-group-text bg-light border-end-0"><i class="fa-solid fa-search text-muted"></i></span>
+<input type="text" id="userSearchInput" class="form-control border-start-0 ps-0" placeholder="Search users by name or email..." onkeyup="filterUsers()">
+</div>
+</div>
+
 <div class="table-responsive">
-<table class="table table-hover align-middle">
+<table class="table table-hover align-middle" id="usersTable">
 <thead class="table-dark">
 <tr>
 <th>Name</th>
@@ -78,9 +86,9 @@ body {
 <tbody>
 {% for user in users %}
 {% if not user.is_admin %}
-<tr>
-<td class="fw-semibold">{{ user.name }}</td>
-<td>{{ user.email }}</td>
+<tr class="user-row">
+<td class="fw-semibold user-name">{{ user.name }}</td>
+<td class="user-email">{{ user.email }}</td>
 <td><span class="badge bg-secondary">{{ user.role | capitalize }}</span></td>
 <td>
 <!-- View Documents Button triggering Modal -->
@@ -131,7 +139,6 @@ body {
 <p class="mb-1"><strong>Email:</strong> {{ user.email }}</p>
 <p class="mb-2"><strong>Phone:</strong> {{ user.phone }}</p>
 <p class="mb-1"><strong>Role:</strong> {{ user.role | capitalize }}</p>
-
 <!-- Display Rate per KM if user is a driver -->
 {% if user.role == 'driver' %}
 <p class="mt-2 mb-1 text-success fw-bold">
@@ -139,7 +146,6 @@ body {
 </p>
 {% endif %}
 </div>
-
 <!-- Pending Updated Details Column -->
 <div class="col-md-6">
 <h6 class="fw-bold text-warning mb-3">Requested Profile Changes</h6>
@@ -175,7 +181,6 @@ body {
 {% endif %}
 </div>
 </div>
-
 <hr class="border-secondary my-3">
 <p class="fw-bold text-secondary mb-2 small">Original Registered Documents:</p>
 <ul class="list-inline small mb-0">
@@ -187,7 +192,6 @@ body {
 {% if user.police_report %}<li class="list-inline-item"><a href="{{ url_for('static', filename='uploads/' + user.police_report) }}" target="_blank" class="text-light text-decoration-none"><i class="fa-solid fa-file me-1"></i> Police Report</a></li>{% endif %}
 </ul>
 </div>
-
 <div class="modal-footer border-0">
 <button type="button" class="btn btn-secondary btn-sm rounded-pill px-4" data-bs-dismiss="modal">Close</button>
 </div>
@@ -205,5 +209,31 @@ body {
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- ⚡ Live Search Filter Script -->
+<script>
+function filterUsers() {
+    let input = document.getElementById('userSearchInput');
+    let filter = input.value.toLowerCase();
+    let table = document.getElementById('usersTable');
+    let trs = table.getElementsByClassName('user-row');
+
+    for (let i = 0; i < trs.length; i++) {
+        let nameTd = trs[i].getElementsByClassName('user-name')[0];
+        let emailTd = trs[i].getElementsByClassName('user-email')[0];
+        
+        if (nameTd || emailTd) {
+            let nameValue = nameTd.textContent || nameTd.innerText;
+            let emailValue = emailTd.textContent || emailTd.innerText;
+            
+            if (nameValue.toLowerCase().indexOf(filter) > -1 || emailValue.toLowerCase().indexOf(filter) > -1) {
+                trs[i].style.display = "";
+            } else {
+                trs[i].style.display = "none";
+            }
+        }
+    }
+}
+</script>
 </body>
 </html>
