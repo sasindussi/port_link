@@ -229,18 +229,24 @@ def user_profile():
 @main_bp.route('/jobs')
 def jobs_page():
     jobs = Job.query.all()
-    return render_template('jobs.html', jobs=jobs)
+    return render_template('jobs.html', jobs=jobs, User=User)
 
-# Client Post Job Route
+# Client Post Job Route (Restricted until admin approval)
 @main_bp.route('/post-job', methods=['GET', 'POST'])
 def post_job():
     if 'user_id' not in session:
         flash('Please log in first to post a job.', 'danger')
         return redirect(url_for('main.login_page'))
     user = User.query.get_or_404(session['user_id'])
+    
+    if not user.is_approved:
+        flash('Your account is pending admin approval. You can post jobs only after admin verification.', 'warning')
+        return redirect(url_for('main.jobs_page'))
+        
     if user.role != 'client':
         flash('Only clients can post jobs!', 'danger')
         return redirect(url_for('main.jobs_page'))
+        
     if request.method == 'POST':
         new_job = Job(
             container_size=request.form.get('container_size'),
@@ -270,16 +276,22 @@ def post_job():
         return redirect(url_for('main.jobs_page'))
     return render_template('post_job.html')
 
-# Driver Apply for Job
+# Driver Apply for Job (Restricted until admin approval)
 @main_bp.route('/apply-job/<int:job_id>', methods=['POST'])
 def apply_job(job_id):
     if 'user_id' not in session:
         flash('Please log in as a driver to apply.', 'danger')
         return redirect(url_for('main.login_page'))
     driver = User.query.get_or_404(session['user_id'])
+    
+    if not driver.is_approved:
+        flash('Your account is pending admin approval. You can apply for jobs only after admin verification.', 'warning')
+        return redirect(url_for('main.jobs_page'))
+        
     if driver.role != 'driver':
         flash('Only registered drivers can apply for transport jobs!', 'danger')
         return redirect(url_for('main.jobs_page'))
+        
     job = Job.query.get_or_404(job_id)
     existing_app = JobApplication.query.filter_by(job_id=job.id, driver_id=driver.id).first()
     if existing_app:
@@ -356,7 +368,7 @@ def delete_job(job_id):
     flash('Job post deleted successfully!', 'success')
     return redirect(url_for('main.jobs_page'))
 
-# ⭐ Admin Delete Job Route (Fixed with cascade delete for reviews & applications + Email notification)
+# Admin Delete Job Route (With Reason & Email Notification to Client)
 @main_bp.route('/admin/delete-job/<int:job_id>', methods=['POST'])
 def admin_delete_job(job_id):
     if 'user_id' not in session or not session.get('is_admin'):
@@ -366,20 +378,16 @@ def admin_delete_job(job_id):
     job = Job.query.get_or_404(job_id)
     reason = request.form.get('reason', 'Violation of platform terms and conditions.')
     
-    # Get client info before deleting
     client = User.query.get(job.client_id) if job.client_id else None
     client_email = client.email if client else None
     client_name = client.name if client else 'Client'
     
-    # Clear related reviews and applications first to avoid IntegrityError (NotNullViolation)
     Review.query.filter_by(job_id=job.id).delete()
     JobApplication.query.filter_by(job_id=job.id).delete()
     
-    # Delete job from database
     db.session.delete(job)
     db.session.commit()
     
-    # Send email notification to the client explaining the deletion reason
     if client_email:
         try:
             msg = Message(
@@ -466,21 +474,32 @@ def approve_profile_update(user_id):
         flash(f'Profile update for {user.name} approved successfully!', 'success')
     return redirect(url_for('main.admin_dashboard'))
 
-# Admin Delete User
+# Admin Delete User (Fixed with cascade delete for driver apps and client jobs/reviews)
 @main_bp.route('/admin/delete_user/<int:user_id>', methods=['POST'])
 def delete_user(user_id):
     if 'user_id' not in session or not session.get('is_admin'):
         flash('Unauthorized access!', 'danger')
         return redirect(url_for('main.admin_login'))
+        
     user = User.query.get_or_404(user_id)
+    
     if user.is_admin:
         flash('Cannot delete admin account!', 'danger')
         return redirect(url_for('main.admin_dashboard'))
+        
     if user.role == 'driver':
         JobApplication.query.filter_by(driver_id=user.id).delete()
+    elif user.role == 'client':
+        client_jobs = Job.query.filter_by(client_id=user.id).all()
+        for job in client_jobs:
+            Review.query.filter_by(job_id=job.id).delete()
+            JobApplication.query.filter_by(job_id=job.id).delete()
+            db.session.delete(job)
+            
     db.session.delete(user)
     db.session.commit()
-    flash(f'User {user.name} has been removed successfully.', 'success')
+    
+    flash(f'User {user.name} and all related data have been removed successfully.', 'success')
     return redirect(url_for('main.admin_dashboard'))
 
 # Admin Profile Update Route
