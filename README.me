@@ -1,0 +1,48 @@
+# Port Link — Container Transport & Driver Matching Platform
+
+**Port Link** is a web-based container transport and heavy-vehicle driver matching platform built for Sri Lankan logistics workflows. It connects clients who need container transport with verified drivers and gives administrators centralized control over user verification, job listings, and email notifications.
+
+## Tech Stack
+
+* **Backend:** Python, Flask, Flask-SQLAlchemy, Flask-Mail
+* **Database:** PostgreSQL (Supabase) via SQLAlchemy ORM
+* **Frontend:** HTML5, CSS3, Bootstrap 5, Jinja2, Font Awesome
+
+## User Roles & Key Features
+
+* **Client**
+  * Register with verification details and await admin approval before posting jobs
+  * Post container transport jobs with container size, pickup location, dropoff location, and notes
+  * View driver applications, rates (LKR/km), ratings, and review history before selecting a driver
+  * Rate and review assigned drivers after job completion
+* **Driver**
+  * Register with driving/vehicle/verification details and await admin approval before applying to jobs
+  * Browse available container jobs and submit applications
+  * Configure transport rates per kilometer (LKR/km) and view received client reviews
+* **Administrator**
+  * Manage admin profile credentials
+  * Review user profiles, pending profile update requests, and uploaded verification documents
+  * Approve or remove users with safe cascade cleanup of related jobs, applications, and reviews
+  * Delete job posts from the available jobs view with a mandatory reason sent via email to the client
+* **Notifications & Security**
+  * Automated email notifications via Flask-Mail for OTP password resets, new job alerts, driver requests, and job removal notices
+  * Sensitive credentials and environment variables stored in `.env` and excluded from version control via `.gitignore`
+
+## Project Structure
+
+```text
+web/
+├── app/
+│   ├── __init__.py
+│   ├── models.py
+│   ├── routes.py
+│   ├── static/
+│   │   └── uploads/
+│   └── templates/
+│       ├── admin_dashboard.html
+│       ├── jobs.html
+│       └── ...
+├── .env
+├── .gitignore
+├── README.md
+└── run.py

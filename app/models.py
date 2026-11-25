@@ -35,7 +35,7 @@ class User(db.Model):
     pending_police_report = db.Column(db.String(255), nullable=True)
     has_pending_update = db.Column(db.Boolean, default=False)
 
-    # ⭐ Average Rating Property for Drivers (Required for Profile & Job Reviews)
+    #  Average Rating Property for Drivers (Required for Profile & Job Reviews)
     @property
     def average_rating(self):
         if not self.received_reviews:
